@@ -6,6 +6,12 @@ import (
 )
 
 func home(writer http.ResponseWriter, req *http.Request) {
+
+	if req.URL.Path != "/" {
+		http.NotFound(writer, req)
+		return
+	}
+
 	writer.Write([]byte("Hello from Snippetbox"))
 }
 
