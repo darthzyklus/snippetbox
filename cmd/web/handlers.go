@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -12,7 +14,19 @@ func home(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	writer.Write([]byte("Hello from Snippetbox"))
+	ts, err := template.ParseFiles("./ui/html/pages/home.tmpl")
+
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(writer, "Interal Server Errror", http.StatusInternalServerError)
+	}
+
+	err = ts.Execute(writer, nil)
+
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(writer, "Interal Server Errror", http.StatusInternalServerError)
+	}
 }
 
 func snippetView(writer http.ResponseWriter, req *http.Request) {
