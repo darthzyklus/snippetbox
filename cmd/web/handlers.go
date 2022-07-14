@@ -9,7 +9,7 @@ import (
 
 func (app *application) home(writer http.ResponseWriter, req *http.Request) {
 	if req.URL.Path != "/" {
-		http.NotFound(writer, req)
+		app.notFound(writer)
 		return
 	}
 
@@ -22,15 +22,14 @@ func (app *application) home(writer http.ResponseWriter, req *http.Request) {
 	ts, err := template.ParseFiles(files...)
 
 	if err != nil {
-		app.errorLog.Println(err.Error())
-		http.Error(writer, "Interal Server Errror", http.StatusInternalServerError)
+		app.serverError(writer, err)
+		return
 	}
 
 	err = ts.ExecuteTemplate(writer, "base", nil)
 
 	if err != nil {
-		app.errorLog.Println(err.Error())
-		http.Error(writer, "Interal Server Errror", http.StatusInternalServerError)
+		app.serverError(writer, err)
 	}
 }
 
@@ -38,7 +37,7 @@ func (app *application) snippetView(writer http.ResponseWriter, req *http.Reques
 	id, err := strconv.Atoi(req.URL.Query().Get("id"))
 
 	if err != nil || id < 1 {
-		http.NotFound(writer, req)
+		app.notFound(writer)
 		return
 	}
 
@@ -48,7 +47,7 @@ func (app *application) snippetView(writer http.ResponseWriter, req *http.Reques
 func (app *application) snippetCreate(writer http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		writer.Header().Set("Allow", http.MethodPost)
-		http.Error(writer, "Method Not Allowed", http.StatusUnsupportedMediaType)
+		app.clientError(writer, http.StatusMethodNotAllowed)
 		return
 	}
 
