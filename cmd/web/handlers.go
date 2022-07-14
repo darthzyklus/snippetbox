@@ -3,12 +3,11 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func home(writer http.ResponseWriter, req *http.Request) {
+func (app *application) home(writer http.ResponseWriter, req *http.Request) {
 	if req.URL.Path != "/" {
 		http.NotFound(writer, req)
 		return
@@ -23,19 +22,19 @@ func home(writer http.ResponseWriter, req *http.Request) {
 	ts, err := template.ParseFiles(files...)
 
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(writer, "Interal Server Errror", http.StatusInternalServerError)
 	}
 
 	err = ts.ExecuteTemplate(writer, "base", nil)
 
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(writer, "Interal Server Errror", http.StatusInternalServerError)
 	}
 }
 
-func snippetView(writer http.ResponseWriter, req *http.Request) {
+func (app *application) snippetView(writer http.ResponseWriter, req *http.Request) {
 	id, err := strconv.Atoi(req.URL.Query().Get("id"))
 
 	if err != nil || id < 1 {
@@ -46,7 +45,7 @@ func snippetView(writer http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(writer, "Display a specific snippet with ID %d", id)
 }
 
-func snippetCreate(writer http.ResponseWriter, req *http.Request) {
+func (app *application) snippetCreate(writer http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		writer.Header().Set("Allow", http.MethodPost)
 		http.Error(writer, "Method Not Allowed", http.StatusUnsupportedMediaType)
