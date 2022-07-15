@@ -51,5 +51,16 @@ func (app *application) snippetCreate(writer http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	writer.Write([]byte("Create a snippet..."))
+	title := "GO AND RUST"
+	content := "Best snippets ever\n Find here the best content\n\n Andres Uris"
+	expires := 7
+
+	id, err := app.snippets.Insert(title, content, expires)
+
+	if err != nil {
+		app.serverError(writer, err)
+		return
+	}
+
+	http.Redirect(writer, req, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
 }
