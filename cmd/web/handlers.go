@@ -1,6 +1,8 @@
 package main
 
 import (
+	"darthzyklus/snippetbox/internal/models"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -41,7 +43,18 @@ func (app *application) snippetView(writer http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	fmt.Fprintf(writer, "Display a specific snippet with ID %d", id)
+	snippet, err := app.snippets.Get(id)
+
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(writer)
+		} else {
+			app.serverError(writer, err)
+		}
+		return
+	}
+
+	fmt.Fprintf(writer, "%+v", snippet)
 }
 
 func (app *application) snippetCreate(writer http.ResponseWriter, req *http.Request) {
