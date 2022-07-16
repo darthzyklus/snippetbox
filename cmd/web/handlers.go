@@ -4,7 +4,8 @@ import (
 	"darthzyklus/snippetbox/internal/models"
 	"errors"
 	"fmt"
-	"html/template"
+
+	//	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -15,24 +16,38 @@ func (app *application) home(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/partials/nav.tmpl",
-		"./ui/html/pages/home.tmpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
+	snippets, err := app.snippets.Latest()
 
 	if err != nil {
 		app.serverError(writer, err)
 		return
 	}
 
-	err = ts.ExecuteTemplate(writer, "base", nil)
-
-	if err != nil {
-		app.serverError(writer, err)
+	for _, snippet := range snippets {
+		fmt.Fprintf(writer, "%+v\n", snippet)
 	}
+
+	/*
+
+		files := []string{
+			"./ui/html/base.tmpl",
+			"./ui/html/partials/nav.tmpl",
+			"./ui/html/pages/home.tmpl",
+		}
+
+		ts, err := template.ParseFiles(files...)
+
+		if err != nil {
+			app.serverError(writer, err)
+			return
+		}
+
+		err = ts.ExecuteTemplate(writer, "base", nil)
+
+		if err != nil {
+			app.serverError(writer, err)
+		}
+	*/
 }
 
 func (app *application) snippetView(writer http.ResponseWriter, req *http.Request) {
