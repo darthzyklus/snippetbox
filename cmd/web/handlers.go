@@ -29,9 +29,8 @@ func (app *application) home(writer http.ResponseWriter, req *http.Request) {
 	*/
 	page := "home.tmpl"
 
-	data := &templateData{
-		Snippets: snippets,
-	}
+	data := app.newTemplateData(req)
+	data.Snippets = snippets
 
 	app.render(writer, 200, page, data)
 }
@@ -57,9 +56,8 @@ func (app *application) snippetView(writer http.ResponseWriter, req *http.Reques
 
 	page := "view.tmpl"
 
-	data := &templateData{
-		Snippet: snippet,
-	}
+	data := app.newTemplateData(req)
+	data.Snippet = snippet
 
 	app.render(writer, 200, page, data)
 }
