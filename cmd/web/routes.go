@@ -11,7 +11,9 @@ func (app *application) routes() http.Handler {
 
 	router := httprouter.New()
 
-	//mux := http.NewServeMux()
+	router.NotFound = http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
+		app.notFound(writer)
+	})
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 
