@@ -7,13 +7,11 @@ import (
 
 	"net/http"
 	"strconv"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) home(writer http.ResponseWriter, req *http.Request) {
-	if req.URL.Path != "/" {
-		app.notFound(writer)
-		return
-	}
 
 	snippets, err := app.snippets.Latest()
 
@@ -22,11 +20,6 @@ func (app *application) home(writer http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	/*
-		for _, snippet := range snippets {
-			fmt.Fprintf(writer, "%+v\n", snippet)
-		}
-	*/
 	page := "home.tmpl"
 
 	data := app.newTemplateData(req)
@@ -36,7 +29,9 @@ func (app *application) home(writer http.ResponseWriter, req *http.Request) {
 }
 
 func (app *application) snippetView(writer http.ResponseWriter, req *http.Request) {
-	id, err := strconv.Atoi(req.URL.Query().Get("id"))
+	params := httprouter.ParamsFromContext(req.Context())
+
+	id, err := strconv.Atoi(params.ByName("id"))
 
 	if err != nil || id < 1 {
 		app.notFound(writer)
@@ -63,11 +58,10 @@ func (app *application) snippetView(writer http.ResponseWriter, req *http.Reques
 }
 
 func (app *application) snippetCreate(writer http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodPost {
-		writer.Header().Set("Allow", http.MethodPost)
-		app.clientError(writer, http.StatusMethodNotAllowed)
-		return
-	}
+	writer.Write([]byte("Display the form for creating a new snippet..."))
+}
+
+func (app *application) snippetCreatePost(writer http.ResponseWriter, req *http.Request) {
 
 	title := "GO AND RUST"
 	content := "Best snippets ever\n Find here the best content\n\n Andres Uris"
@@ -80,5 +74,5 @@ func (app *application) snippetCreate(writer http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	http.Redirect(writer, req, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
+	http.Redirect(writer, req, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
