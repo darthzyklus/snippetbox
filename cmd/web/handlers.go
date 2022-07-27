@@ -65,9 +65,22 @@ func (app *application) snippetCreate(writer http.ResponseWriter, req *http.Requ
 
 func (app *application) snippetCreatePost(writer http.ResponseWriter, req *http.Request) {
 
-	title := "GO AND RUST"
-	content := "Best snippets ever\n Find here the best content\n\n Andres Uris"
-	expires := 7
+	err := req.ParseForm()
+
+	if err != nil {
+		app.clientError(writer, http.StatusBadRequest)
+		return
+	}
+
+	title := req.PostForm.Get("title")
+	content := req.PostForm.Get("content")
+
+	expires, err := strconv.Atoi(req.PostForm.Get("expires"))
+
+	if err != nil {
+		app.clientError(writer, http.StatusBadRequest)
+		return
+	}
 
 	id, err := app.snippets.Insert(title, content, expires)
 
