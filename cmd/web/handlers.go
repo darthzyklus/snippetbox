@@ -4,9 +4,10 @@ import (
 	"darthzyklus/snippetbox/internal/models"
 	"errors"
 	"fmt"
-
 	"net/http"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -79,6 +80,28 @@ func (app *application) snippetCreatePost(writer http.ResponseWriter, req *http.
 
 	if err != nil {
 		app.clientError(writer, http.StatusBadRequest)
+		return
+	}
+
+	fieldErrors := make(map[string]string)
+
+	if strings.TrimSpace(title) == "" {
+		fieldErrors["title"] = "This field cannot be blank"
+
+	} else if utf8.RuneCountInString(title) > 100 {
+		fieldErrors["title"] = "This field cannot be more than 100 characters long"
+	}
+
+	if strings.TrimSpace(content) == "" {
+		fieldErrors["content"] = "this field cannot be blank"
+	}
+
+	if expires != 1 && expires != 7 && expires != 365 {
+		fieldErrors["expires"] = "This field must be equal to 1, 7 or 365"
+	}
+
+	if len(fieldErrors) > 0 {
+		fmt.Fprint(writer, fieldErrors)
 		return
 	}
 
